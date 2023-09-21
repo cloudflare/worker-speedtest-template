@@ -46,6 +46,6 @@ Example: `/down?bytes=10000`
 
 **POST** `/up` Receive content posted to the server
 
-The content is discarded by the endpoint. A response is sent once all the content has been received by the client.
+The content is discarded by the endpoint. A response is sent once all the content has been received from the client.
 
 No query string parameters.
