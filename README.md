@@ -33,6 +33,12 @@ docker build -t speedtest-worker .
 docker run -d --name speedtest -p 8080:8080 --restart unless-stopped speedtest-worker
 ```
 
+Or use the prebuilt image, which GitHub Actions publishes from `master` for amd64 and arm64:
+
+```
+docker run -d --name speedtest -p 8080:8080 --restart unless-stopped ghcr.io/sourcequality/worker-speedtest-template:latest
+```
+
 Then open `http://SERVER:8080` in a browser and press **Start**. The page shows download and upload speed, latency, jitter, a network quality score and charts of every measurement. It uses Cloudflare's open-source measurement engine, [`@cloudflare/speedtest`](https://github.com/cloudflare/speedtest), with result reporting turned off, so no data leaves your network. Packet loss is not measured, since it needs a TURN server.
 
 You can also test from the command line:
