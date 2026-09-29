@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Speed Test</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --page: #f9f9f7;
+        --surface: #fcfcfb;
+        --text-primary: #0b0b0b;
+        --text-secondary: #52514e;
+        --text-muted: #898781;
+        --grid: #e1e0d9;
+        --axis: #c3c2b7;
+        --border: rgba(11, 11, 11, 0.1);
+        --download: #2a78d6;
+        --upload: #eb6834;
+        --idle: #1baf7a;
+        --meter-on: #2a78d6;
+        --meter-off: #cde2fb;
+        --button: #2a78d6;
+        --button-text: #ffffff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          color-scheme: dark;
+          --page: #0d0d0d;
+          --surface: #1a1a19;
+          --text-primary: #ffffff;
+          --text-secondary: #c3c2b7;
+          --text-muted: #898781;
+          --grid: #2c2c2a;
+          --axis: #383835;
+          --border: rgba(255, 255, 255, 0.1);
+          --download: #3987e5;
+          --upload: #d95926;
+          --idle: #199e70;
+          --meter-on: #3987e5;
+          --meter-off: #184f95;
+          --button: #3987e5;
+          --button-text: #ffffff;
+        }
+      }
+      :root[data-theme='dark'] {
+        color-scheme: dark;
+        --page: #0d0d0d;
+        --surface: #1a1a19;
+        --text-primary: #ffffff;
+        --text-secondary: #c3c2b7;
+        --text-muted: #898781;
+        --grid: #2c2c2a;
+        --axis: #383835;
+        --border: rgba(255, 255, 255, 0.1);
+        --download: #3987e5;
+        --upload: #d95926;
+        --idle: #199e70;
+        --meter-on: #3987e5;
+        --meter-off: #184f95;
+        --button: #3987e5;
+        --button-text: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--text-primary);
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        line-height: 1.4;
+      }
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 24px 16px 48px;
+      }
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      h1 {
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0;
+      }
+      .server {
+        color: var(--text-secondary);
+        font-size: 14px;
+      }
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      button {
+        font: inherit;
+        font-weight: 600;
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 20px;
+        background: var(--button);
+        color: var(--button-text);
+        cursor: pointer;
+      }
+      button.secondary {
+        background: transparent;
+        color: var(--text-primary);
+        box-shadow: inset 0 0 0 1px var(--border);
+      }
+      .status {
+        color: var(--text-secondary);
+        font-size: 14px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px 20px;
+      }
+      .heroes {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .stat .label {
+        color: var(--text-secondary);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .swatch {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .stat .value {
+        font-size: 40px;
+        font-weight: 600;
+        margin-top: 4px;
+      }
+      .stat.primary .value {
+        font-size: 56px;
+      }
+      .stat .unit {
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--text-secondary);
+        margin-left: 4px;
+      }
+      .stat .sub {
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+      h2 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 12px;
+      }
+      .scores {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .score .name {
+        color: var(--text-secondary);
+        font-size: 14px;
+      }
+      .score .grade {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 2px 0 6px;
+      }
+      .meter {
+        display: flex;
+        gap: 2px;
+      }
+      .meter span {
+        flex: 1;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--meter-off);
+      }
+      .meter span.on {
+        background: var(--meter-on);
+      }
+      .grid2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .chart svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+      }
+      .chart .empty {
+        color: var(--text-muted);
+        font-size: 14px;
+        padding: 24px 0;
+      }
+      details {
+        margin-top: 8px;
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+      summary {
+        cursor: pointer;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 8px;
+        font-variant-numeric: tabular-nums;
+      }
+      th,
+      td {
+        text-align: right;
+        padding: 4px 8px;
+        border-bottom: 1px solid var(--grid);
+      }
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+      .tooltip {
+        position: fixed;
+        pointer-events: none;
+        background: var(--surface);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 13px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        display: none;
+        z-index: 10;
+        white-space: nowrap;
+      }
+      .note {
+        color: var(--text-muted);
+        font-size: 13px;
+        margin-top: 16px;
+      }
+      @media (max-width: 760px) {
+        .heroes {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .grid2,
+        .scores {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .stat .value {
+          font-size: 32px;
+        }
+        .stat.primary .value {
+          font-size: 40px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Speed Test</h1>
+          <div class="server">Server: <span id="server"></span></div>
+        </div>
+        <div class="controls">
+          <span class="status" id="status" aria-live="polite">Ready</span>
+          <button id="pause" class="secondary" hidden>Pause</button>
+          <button id="start">Start</button>
+        </div>
+      </header>
+
+      <section class="heroes" aria-label="Summary">
+        <div class="card stat primary">
+          <div class="label"><span class="swatch" style="background: var(--download)"></span>Download</div>
+          <div class="value"><span id="down">–</span><span class="unit" id="down-unit">Mbps</span></div>
+        </div>
+        <div class="card stat primary">
+          <div class="label"><span class="swatch" style="background: var(--upload)"></span>Upload</div>
+          <div class="value"><span id="up">–</span><span class="unit" id="up-unit">Mbps</span></div>
+        </div>
+        <div class="card stat">
+          <div class="label">Latency</div>
+          <div class="value"><span id="latency">–</span><span class="unit">ms</span></div>
+          <div class="sub" id="latency-sub"></div>
+        </div>
+        <div class="card stat">
+          <div class="label">Jitter</div>
+          <div class="value"><span id="jitter">–</span><span class="unit">ms</span></div>
+        </div>
+      </section>
+
+      <section class="card" aria-label="Network quality score">
+        <h2>Network quality score</h2>
+        <div class="scores" id="scores"></div>
+      </section>
+
+      <section class="grid2">
+        <div class="card chart" id="chart-down"></div>
+        <div class="card chart" id="chart-up"></div>
+      </section>
+      <section class="grid2">
+        <div class="card chart" id="chart-latency"></div>
+        <div class="card" id="about">
+          <h2>About this test</h2>
+          <p class="status">
+            Measures the connection between this browser and the server hosting this page. Download
+            and upload use a series of requests of increasing size; the result is the 90th
+            percentile of the measured speeds. Latency is the median time to first byte of empty
+            requests; jitter is the average change between consecutive latency measurements.
+          </p>
+          <p class="status">Results stay in this browser and are not sent anywhere.</p>
+        </div>
+      </section>
+      <p class="note">
+        Measurements use the open-source <code>@cloudflare/speedtest</code> engine (MIT licence).
+      </p>
+    </main>
+    <div class="tooltip" id="tooltip" role="tooltip"></div>
+    <script>
+      /*APP_SCRIPT*/
+    </script>
+  </body>
+</html>

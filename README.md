@@ -33,7 +33,9 @@ docker build -t speedtest-worker .
 docker run -d --name speedtest -p 8080:8080 --restart unless-stopped speedtest-worker
 ```
 
-Then test from any client:
+Then open `http://SERVER:8080` in a browser and press **Start**. The page shows download and upload speed, latency, jitter, a network quality score and charts of every measurement. It uses Cloudflare's open-source measurement engine, [`@cloudflare/speedtest`](https://github.com/cloudflare/speedtest), with result reporting turned off, so no data leaves your network. Packet loss is not measured, since it needs a TURN server.
+
+You can also test from the command line:
 
 ```
 # Download
@@ -45,6 +47,8 @@ head -c 50000000 /dev/zero | curl -s -o /dev/null -w 'up: %{speed_upload} B/s\n'
 # Latency
 curl -s -o /dev/null -w 'ttfb: %{time_starttransfer}s\n' "http://SERVER:8080/down?bytes=0"
 ```
+
+To build the worker without Docker, run `npm install --no-save esbuild @cloudflare/speedtest && node build.mjs`, which writes `dist/worker.js` with the page included.
 
 The `cf-meta-colo` header is not set when self-hosted, since there is no Cloudflare data center involved.
 
