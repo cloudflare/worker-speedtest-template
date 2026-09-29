@@ -24,6 +24,30 @@ Once you are ready, you can publish your code by running the following command:
 wrangler publish
 ```
 
+#### Docker (self-hosted)
+
+To measure speed to your own servers instead of Cloudflare's network, run the worker in a container using [workerd](https://github.com/cloudflare/workerd), the open-source Workers runtime. No Cloudflare account is needed.
+
+```
+docker build -t speedtest-worker .
+docker run -d --name speedtest -p 8080:8080 --restart unless-stopped speedtest-worker
+```
+
+Then test from any client:
+
+```
+# Download
+curl -s -o /dev/null -w 'down: %{speed_download} B/s\n' "http://SERVER:8080/down?bytes=50000000"
+
+# Upload
+head -c 50000000 /dev/zero | curl -s -o /dev/null -w 'up: %{speed_upload} B/s\n' --data-binary @- http://SERVER:8080/up
+
+# Latency
+curl -s -o /dev/null -w 'ttfb: %{time_starttransfer}s\n' "http://SERVER:8080/down?bytes=0"
+```
+
+The `cf-meta-colo` header is not set when self-hosted, since there is no Cloudflare data center involved.
+
 #### Serverless
 
 To deploy using serverless add a [`serverless.yml`](https://serverless.com/framework/docs/providers/cloudflare/) file.

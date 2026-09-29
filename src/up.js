@@ -1,6 +1,12 @@
 async function handleRequest(request) {
   const reqTime = new Date();
 
+  // Drain the upload so the response is only sent once all content is received
+  const reader = request.body && request.body.getReader && request.body.getReader();
+  if (reader) {
+    while (!(await reader.read()).done);
+  }
+
   const res = new Response('ok');
 
   res.headers.set('access-control-allow-origin', '*');
